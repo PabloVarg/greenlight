@@ -24,8 +24,18 @@ type application struct {
 func main() {
 	var config config
 
-	flag.IntVar(&config.port, "port", 4000, "API server port")
-	flag.StringVar(&config.env, "env", "development", "Environment (development|staging|production)")
+	flag.IntVar(
+		&config.port,
+		"port",
+		4000,
+		"API server port",
+	)
+	flag.StringVar(
+		&config.env,
+		"env",
+		"development",
+		"Environment (development|staging|production)",
+	)
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
