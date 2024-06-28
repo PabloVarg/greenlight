@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -8,8 +9,20 @@ import (
 	"greenlight.pvargasb.com/internal/data"
 )
 
-func (app *application) createMovieHandler(w http.ResponseWriter, _ *http.Request) {
-	fmt.Fprintln(w, "Create Movie")
+func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title   string   `json:"title"`
+		Year    int32    `json:"year"`
+		Runtime int32    `json:"runtime"`
+		Genres  []string `json:"genres"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		app.errorResponse(w, r, http.StatusUnprocessableEntity, err.Error())
+	}
+	defer r.Body.Close()
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
