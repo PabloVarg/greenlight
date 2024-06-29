@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type envelope map[string]any
@@ -52,8 +53,14 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *application) readJSON(r *http.Request, target any) error {
-	if err := json.NewDecoder(r.Body).Decode(target); err != nil {
+func (app *application) readJSON(w http.ResponseWriter, r *http.Request, target any) error {
+	const MB = 1024 * 1024
+
+	r.Body = http.MaxBytesReader(w, r.Body, MB)
+
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(target); err != nil {
 		var syntaxError *json.SyntaxError
 		var unmarshalTypeError *json.UnmarshalTypeError
 		var invalidUnmarshalError *json.InvalidUnmarshalError
@@ -68,13 +75,24 @@ func (app *application) readJSON(r *http.Request, target any) error {
 			return fmt.Errorf("body contains incorrect JSON type (at character %d)", unmarshalTypeError.Offset)
 		case errors.As(err, &invalidUnmarshalError):
 			panic(err)
+
 		case errors.Is(err, io.ErrUnexpectedEOF):
 			return fmt.Errorf("body contains malformed JSON")
 		case errors.Is(err, io.EOF):
 			return fmt.Errorf("body must not be empty")
+
+		case strings.HasPrefix(err.Error(), "json: unknown field "):
+			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
+			return fmt.Errorf("body contains unknown key %s", fieldName)
+		case err.Error() == "http: request body too large":
+			return fmt.Errorf("body must not be larger than %d bytes", MB)
 		default:
 			return err
 		}
+	}
+
+	if err := dec.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		return errors.New("body must only contain a single JSON value")
 	}
 
 	return nil
