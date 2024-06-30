@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+        POSTGRES_USER: greenlight
+        POSTGRES_PASSWORD: greenlight
+        POSTGRES_DB: greenlight
+    volumes:
+      - db:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+
+volumes:
+  db:
