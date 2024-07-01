@@ -11,6 +11,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	"greenlight.pvargasb.com/internal/data"
 )
 
 const version = "1.0.0"
@@ -27,6 +28,7 @@ type config struct {
 }
 
 type application struct {
+	models data.Models
 	config config
 	logger *log.Logger
 }
@@ -86,6 +88,7 @@ func main() {
 	logger.Printf("Connection to DB(%s) established\n", config.db.dsn)
 
 	app := application{
+		models: *data.NewModels(db),
 		config: config,
 		logger: logger,
 	}
