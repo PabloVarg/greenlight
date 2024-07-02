@@ -60,13 +60,13 @@ func main() {
 	)
 	flag.IntVar(
 		&config.db.maxOpenConns,
-		"db-max-open-cons",
+		"db-max-open-conns",
 		25,
 		"Postgres max open connections",
 	)
 	flag.IntVar(
 		&config.db.maxIdleConns,
-		"db-max-idle-cons",
+		"db-max-idle-conns",
 		25,
 		"Postgres max idle connections",
 	)
