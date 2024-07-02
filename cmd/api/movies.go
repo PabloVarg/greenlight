@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"greenlight.pvargasb.com/internal/data"
 	"greenlight.pvargasb.com/internal/validator"
@@ -93,6 +94,13 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	if expectedVersion := r.Header.Get("X-Expected-Version"); expectedVersion != "" {
+		if strconv.FormatInt(int64(movie.Version), 10) != expectedVersion {
+			app.editConflictResponse(w, r)
+			return
+		}
+	}
+
 	var input struct {
 		Title   string       `json:"title"`
 		Year    int          `json:"year"`
@@ -118,8 +126,14 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	if err := app.models.Movies.Update(movie); err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+			return
+		default:
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	if err := app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil); err != nil {
@@ -143,6 +157,13 @@ func (app *application) partialUpdateMovieHandler(w http.ResponseWriter, r *http
 			return
 		default:
 			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
+
+	if expectedVersion := r.Header.Get("X-Expected-Version"); expectedVersion != "" {
+		if strconv.FormatInt(int64(movie.Version), 10) != expectedVersion {
+			app.editConflictResponse(w, r)
 			return
 		}
 	}
@@ -180,8 +201,14 @@ func (app *application) partialUpdateMovieHandler(w http.ResponseWriter, r *http
 	}
 
 	if err := app.models.Movies.Update(movie); err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+			return
+		default:
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 
 	if err := app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil); err != nil {
