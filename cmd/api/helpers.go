@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+
+	"greenlight.pvargasb.com/internal/validator"
 )
 
 type envelope map[string]any
@@ -96,4 +99,37 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, target 
 	}
 
 	return nil
+}
+
+func (app *application) readString(qs url.Values, key string, defaultValue string) string {
+	result := qs.Get(key)
+	if result == "" {
+		return defaultValue
+	}
+
+	return result
+}
+
+func (app *application) readCSV(qs url.Values, key string, defaultValue []string) []string {
+	result := qs.Get(key)
+	if result == "" {
+		return defaultValue
+	}
+
+	return strings.Split(result, ",")
+}
+
+func (app *application) readInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
+	result := qs.Get(key)
+	if result == "" {
+		return defaultValue
+	}
+
+	intResult, err := strconv.Atoi(result)
+	if err != nil {
+		v.AddError(key, "must be an integer value")
+		return defaultValue
+	}
+
+	return intResult
 }
