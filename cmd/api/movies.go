@@ -264,13 +264,13 @@ func (app *application) listMoviesHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	movies, err := app.models.Movies.GetAll(input.Title, input.Genres, input.Filters)
+	movies, pageInfo, err := app.models.Movies.GetAll(input.Title, input.Genres, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	if err := app.writeJSON(w, http.StatusOK, envelope{"movies": movies}, nil); err != nil {
+	if err := app.writeJSON(w, http.StatusOK, envelope{"movies": movies, "pageInfo": pageInfo}, nil); err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
