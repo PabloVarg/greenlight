@@ -40,7 +40,7 @@ func (app *application) IntPathValue(r *http.Request, name string) (int, error) 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	res, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
-		app.logger.Println(err)
+		app.logger.Error(err, nil)
 		return errors.New("Error encoding data")
 	}
 

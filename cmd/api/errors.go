@@ -5,8 +5,11 @@ import (
 	"net/http"
 )
 
-func (app *application) logError(_ *http.Request, err error) {
-	app.logger.Println(err)
+func (app *application) logError(r *http.Request, err error) {
+	app.logger.Error(err, map[string]string{
+		"method":      r.Method,
+		"request_url": r.URL.String(),
+	})
 }
 
 func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message any) {

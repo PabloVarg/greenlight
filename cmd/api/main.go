@@ -12,6 +12,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"greenlight.pvargasb.com/internal/data"
+	"greenlight.pvargasb.com/internal/jsonlog"
 )
 
 const version = "1.0.0"
@@ -30,7 +31,7 @@ type config struct {
 type application struct {
 	models data.Models
 	config config
-	logger *log.Logger
+	logger *jsonlog.Logger
 }
 
 func main() {
@@ -78,14 +79,16 @@ func main() {
 	)
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 
 	db, err := openDB(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	logger.Printf("Connection to DB(%s) established\n", config.db.dsn)
+	logger.Info("Connection to DB(%s) established\n", map[string]string{
+		"dsn": config.db.dsn,
+	})
 
 	app := application{
 		models: *data.NewModels(db),
@@ -99,11 +102,15 @@ func main() {
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
+		ErrorLog:     log.New(logger, "", 0),
 	}
 
-	logger.Printf("Starting %s server on %s", app.config.env, srv.Addr)
+	logger.Info("Starting %s server on %s", map[string]string{
+		"env":  app.config.env,
+		"addr": srv.Addr,
+	})
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.Fatal(err, nil)
 }
 
 func openDB(cfg config) (*sql.DB, error) {
