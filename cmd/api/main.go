@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
@@ -118,21 +117,9 @@ func main() {
 		logger: logger,
 	}
 
-	srv := http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.port),
-		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-		ErrorLog:     log.New(logger, "", 0),
+	if err := app.serve(); err != nil {
+		logger.Fatal(err, nil)
 	}
-
-	logger.Info("Starting %s server on %s", map[string]string{
-		"env":  app.config.env,
-		"addr": srv.Addr,
-	})
-	err = srv.ListenAndServe()
-	logger.Fatal(err, nil)
 }
 
 func openDB(cfg config) (*sql.DB, error) {
