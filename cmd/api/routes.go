@@ -2,7 +2,7 @@ package main
 
 import "net/http"
 
-func (app *application) routes() *http.ServeMux {
+func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	// Health
@@ -16,5 +16,5 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("PATCH /v1/movies/{id}", app.partialUpdateMovieHandler)
 	mux.HandleFunc("DELETE /v1/movies/{id}", app.deleteMovieHandler)
 
-	return mux
+	return app.recoverPanic(mux)
 }
