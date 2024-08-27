@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16
+    restart: unless-stopped
     environment:
         POSTGRES_USER: greenlight
         POSTGRES_PASSWORD: greenlight
@@ -9,6 +10,13 @@ services:
       - db:/var/lib/postgresql/data/
     ports:
       - 5432:5432
+
+  mailpit:
+    image: axllent/mailpit
+    restart: unless-stopped
+    ports:
+      - 8025:8025
+      - 1025:1025
 
 volumes:
   db:
