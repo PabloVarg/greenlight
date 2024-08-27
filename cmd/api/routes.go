@@ -16,5 +16,8 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("PATCH /v1/movies/{id}", app.partialUpdateMovieHandler)
 	mux.HandleFunc("DELETE /v1/movies/{id}", app.deleteMovieHandler)
 
+	// Users
+	mux.HandleFunc("POST /v1/users", app.registerUserHandler)
+
 	return app.recoverPanic(app.rateLimit(mux))
 }

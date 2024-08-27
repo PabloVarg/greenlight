@@ -61,6 +61,27 @@ func ValidateEmail(v *validator.Validator, email string) {
 	v.Check(validator.Matches(*validator.EmailRx, email), "email", "must be a valid email address")
 }
 
+func ValidatePasswordPlaintext(v *validator.Validator, password string) {
+	v.Check(password != "", "password", "must be provided")
+	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
+	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
+}
+
+func ValidateUser(v *validator.Validator, user *User) {
+	v.Check(user.Name != "", "name", "must be provided")
+	v.Check(len(user.Name) <= 500, "name", "must not be more than 500 bytes long")
+
+	ValidateEmail(v, user.Email)
+
+	if user.Password.plaintext != nil {
+		ValidatePasswordPlaintext(v, *user.Password.plaintext)
+	}
+
+	if user.Password.hash == nil {
+		panic("missing password hash for user")
+	}
+}
+
 func (m UserModel) Insert(user *User) error {
 	query := `
         INSERT INTO users (name, email, password_hash, activated)
