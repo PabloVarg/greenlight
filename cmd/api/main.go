@@ -12,6 +12,7 @@ import (
 	_ "github.com/lib/pq"
 	"greenlight.pvargasb.com/internal/data"
 	"greenlight.pvargasb.com/internal/jsonlog"
+	"greenlight.pvargasb.com/internal/mailer"
 )
 
 const version = "1.0.0"
@@ -30,12 +31,20 @@ type config struct {
 		burst   int
 		enabled bool
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 type application struct {
 	models data.Models
 	config config
 	logger *jsonlog.Logger
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -98,6 +107,33 @@ func main() {
 		true,
 		"Enable rate limiter",
 	)
+	flag.StringVar(&config.smtp.host,
+		"smtp-host",
+		"localhost",
+		"SMTP host",
+	)
+	flag.IntVar(&config.smtp.port,
+		"smtp-port",
+		1025,
+		"SMTP port",
+	)
+	flag.StringVar(&config.smtp.username,
+		"smtp-username",
+		"mailpit",
+		"SMTP username",
+	)
+	flag.StringVar(
+		&config.smtp.password,
+		"smtp-password",
+		"mailpit",
+		"SMTP password",
+	)
+	flag.StringVar(
+		&config.smtp.sender,
+		"smtp-sender",
+		"Greenlight <no-reply@greenlight.pvargasb.net>",
+		"SMTP sender",
+	)
 	flag.Parse()
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
@@ -115,6 +151,7 @@ func main() {
 		models: *data.NewModels(db),
 		config: config,
 		logger: logger,
+		mailer: mailer.New(config.smtp.host, config.smtp.port, config.smtp.username, config.smtp.password, config.smtp.sender),
 	}
 
 	if err := app.serve(); err != nil {
