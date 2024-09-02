@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -41,6 +42,7 @@ type config struct {
 }
 
 type application struct {
+	wg     sync.WaitGroup
 	models data.Models
 	config config
 	logger *jsonlog.Logger
