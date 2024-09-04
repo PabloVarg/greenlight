@@ -20,5 +20,8 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("POST /v1/users", app.registerUserHandler)
 	mux.HandleFunc("PUT /v1/users/activate", app.activateUserHandler)
 
+	// Tokens
+	mux.HandleFunc("POST /v1/tokens/authenticate", app.createAuthenticationTokenHandler)
+
 	return app.recoverPanic(app.rateLimit(mux))
 }
