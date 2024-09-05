@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"golang.org/x/time/rate"
+	"gonum.org/v1/gonum/optimize/functions"
 	"greenlight.pvargasb.com/internal/data"
 	"greenlight.pvargasb.com/internal/validator"
 )
@@ -89,8 +90,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		authorizationHeader := r.Header.Get("Authorization")
 		if authorizationHeader == "" {
-			app.contextSetUser(r, data.AnonymousUser)
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, app.contextSetUser(r, data.AnonymousUser))
 			return
 		}
 
@@ -121,4 +121,32 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, app.contextSetUser(r, user))
 	})
+}
+
+func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.contextGetUser(r)
+
+		if user.IsAnonymous() {
+			app.authenticationRequiredResponse(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
+	middleware := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.contextGetUser(r)
+
+		if !user.Activated {
+			app.inactiveAccountResponse(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+
+	return app.requireActivatedUser(middleware)
 }
