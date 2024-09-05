@@ -105,7 +105,8 @@ func (m UserModel) Insert(user *User) error {
 		user.Email,
 		user.Password.hash,
 		user.Activated,
-	).Scan(&user.ID,
+	).Scan(
+		&user.ID,
 		&user.CreatedAt,
 		&user.Version,
 	)
