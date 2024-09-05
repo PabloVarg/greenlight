@@ -17,7 +17,7 @@ type PermissionModel struct {
 	DB *sql.DB
 }
 
-func (m PermissionModel) GetAllForUser(userID int) (Permissions, error) {
+func (m PermissionModel) GetAllForUser(userID int64) (Permissions, error) {
 	query := `
         SELECT permissions.code
         FROM permissions

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"golang.org/x/time/rate"
-	"gonum.org/v1/gonum/optimize/functions"
 	"greenlight.pvargasb.com/internal/data"
 	"greenlight.pvargasb.com/internal/validator"
 )
@@ -146,6 +145,30 @@ func (app *application) requireActivatedUser(next http.HandlerFunc) http.Handler
 		}
 
 		next.ServeHTTP(w, r)
+	})
+
+	return app.requireAuthenticatedUser(middleware)
+}
+
+func (app *application) requirePermission(code string, next http.HandlerFunc) http.HandlerFunc {
+	middleware := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user := app.contextGetUser(r)
+
+		permissions, err := app.models.Permissions.GetAllForUser(user.ID)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+		app.logger.Info("permissions", map[string]string{
+			"arr": fmt.Sprintf("%v", permissions),
+		})
+
+		if permissions.Include(code) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		app.notPermittedResponse(w, r)
 	})
 
 	return app.requireActivatedUser(middleware)
