@@ -59,6 +59,8 @@ migrations/create:
 # QUALITY CONTROL
 # ==================================================================================== #
 
+## vendor: package dependencies
+.PHONY: vendor
 vendor:
 	@echo 'Tidying and verifying module dependencies...'
 	go mod tidy
