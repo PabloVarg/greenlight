@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -148,11 +147,6 @@ func main() {
 	flag.Parse()
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
-	logger.Info("config", map[string]string{
-		"dsn":             config.db.dsn,
-		"cors-origins":    fmt.Sprintf("%v", config.cors.trustedOrigins),
-		"limiter-enabled": fmt.Sprintf("%t", config.limiter.enabled),
-	})
 
 	db, err := openDB(config)
 	if err != nil {

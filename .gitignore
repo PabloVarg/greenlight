@@ -1,4 +1,5 @@
 # Build
+vendor/
 tmp/
 
 # Env

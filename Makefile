@@ -28,7 +28,7 @@ run/api:
 .PHONY: docker/up
 docker/up:
 	@ docker compose up --detach
-	air -- \
+	@ air -- \
 		--dsn "${DATABASE_DSN}" \
 		--cors-trusted-origins ${CORS_ALLOW_ORIGINS} \
 
@@ -59,13 +59,17 @@ migrations/create:
 # QUALITY CONTROL
 # ==================================================================================== #
 
-## audit: tidy dependencies and format, vet and test all code
-.PHONY: audit
-audit:
+vendor:
 	@echo 'Tidying and verifying module dependencies...'
 	go mod tidy
 	go mod verify
 
+	@echo 'Vendoring dependencies...'
+	go mod vendor
+
+## audit: tidy dependencies and format, vet and test all code
+.PHONY: audit
+audit: vendor
 	@echo 'Formatting code...'
 	go fmt ./...
 
