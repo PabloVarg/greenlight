@@ -18,11 +18,11 @@ type envelope map[string]any
 func (app *application) readIDParam(r *http.Request, name string) (int, error) {
 	id, err := app.IntPathValue(r, name)
 	if err != nil {
-		return 0, errors.New("Error reading ID from URL")
+		return 0, errors.New("error reading ID from URL")
 	}
 
 	if id < 1 {
-		return 0, errors.New("Invalid ID parameter")
+		return 0, errors.New("invalid ID parameter")
 	}
 
 	return id, nil
@@ -31,7 +31,7 @@ func (app *application) readIDParam(r *http.Request, name string) (int, error) {
 func (app *application) IntPathValue(r *http.Request, name string) (int, error) {
 	num, err := strconv.Atoi(r.PathValue(name))
 	if err != nil {
-		return 0, errors.New(fmt.Sprintf("Error reading %s from URL", name))
+		return 0, fmt.Errorf("error reading %s from URL", name)
 	}
 
 	return num, nil
@@ -41,7 +41,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	res, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		app.logger.Error(err, nil)
-		return errors.New("Error encoding data")
+		return errors.New("error encoding data")
 	}
 
 	res = append(res, '\n')

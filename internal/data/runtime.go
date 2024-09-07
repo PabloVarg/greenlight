@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var ErrInvalidRuntimeFormat = errors.New("Invalid runtime format")
+var ErrInvalidRuntimeFormat = errors.New("invalid runtime format")
 
 type Runtime int
 

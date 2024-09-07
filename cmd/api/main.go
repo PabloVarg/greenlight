@@ -73,7 +73,7 @@ func main() {
 		&config.db.dsn,
 		"dsn",
 		"",
-		fmt.Sprintf("PostgreSQL DNS"),
+		"PostgreSQL DNS",
 	)
 	flag.IntVar(
 		&config.db.maxOpenConns,
