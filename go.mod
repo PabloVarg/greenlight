@@ -5,6 +5,7 @@ go 1.22.3
 require (
 	github.com/felixge/httpsnoop v1.0.1
 	github.com/lib/pq v1.10.0
+	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
 	golang.org/x/crypto v0.26.0
 	golang.org/x/time v0.6.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
