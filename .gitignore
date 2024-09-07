@@ -1,6 +1,7 @@
 # Build
 vendor/
 tmp/
+bin/
 
 # Env
 .env

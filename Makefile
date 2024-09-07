@@ -79,3 +79,13 @@ audit: vendor
 
 	@echo 'Running tests...'
 	go test -race -vet=off ./...
+
+# ==================================================================================== #
+# BUILD
+# ==================================================================================== #
+
+## build/api: build the cmd/api application
+.PHONY: build/api
+build/api:
+	@echo 'Building cmd/api...'
+	go build -ldflags="-s" -o ./bin/api ./cmd/api/
