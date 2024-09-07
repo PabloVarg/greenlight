@@ -57,11 +57,6 @@ type application struct {
 
 func main() {
 	var config config
-	defaultDSN, ok := os.LookupEnv("POSTGRES_DSN")
-	if !ok {
-		defaultDSN = "postgres://greenlight:greenlight@localhost/greenlight?sslmode=disable"
-	}
-
 	flag.IntVar(
 		&config.port,
 		"port",
@@ -77,8 +72,8 @@ func main() {
 	flag.StringVar(
 		&config.db.dsn,
 		"dsn",
-		defaultDSN,
-		fmt.Sprintf("PostgreSQL DNS (default: %s)", defaultDSN),
+		"",
+		fmt.Sprintf("PostgreSQL DNS"),
 	)
 	flag.IntVar(
 		&config.db.maxOpenConns,
@@ -153,6 +148,11 @@ func main() {
 	flag.Parse()
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
+	logger.Info("config", map[string]string{
+		"dsn":             config.db.dsn,
+		"cors-origins":    fmt.Sprintf("%v", config.cors.trustedOrigins),
+		"limiter-enabled": fmt.Sprintf("%t", config.limiter.enabled),
+	})
 
 	db, err := openDB(config)
 	if err != nil {

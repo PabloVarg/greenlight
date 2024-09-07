@@ -12,13 +12,17 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	@ go run ./cmd/api/
+	@ go run ./cmd/api/ \
+		--dsn "${DATABASE_DSN}" \
+		--cors-trusted-origins ${CORS_ALLOW_ORIGINS} \
 
 ## docker/up: run project
 .PHONY: docker/up
 docker/up:
 	@ docker compose up --detach
-	@ air
+	air -- \
+		--dsn "${DATABASE_DSN}" \
+		--cors-trusted-origins ${CORS_ALLOW_ORIGINS} \
 
 ## docker/up: destroy docker services
 .PHONY: docker/down
