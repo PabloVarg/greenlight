@@ -1,5 +1,5 @@
 {
     "*": {
-        "start": "make run"
+        "start": "trap 'make docker/down' SIGINT && make docker/up"
     }
 }
