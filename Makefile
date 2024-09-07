@@ -1,5 +1,9 @@
 include .env
 
+# ==================================================================================== #
+# HELPERS
+# ==================================================================================== #
+
 .PHONY: help
 help:
 	@ echo "Usage:"
@@ -8,6 +12,10 @@ help:
 .PHONY: confirm
 confirm:
 	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
+
+# ==================================================================================== #
+# DEVELOPMENT
+# ==================================================================================== #
 
 ## run/api: run the cmd/api application
 .PHONY: run/api
@@ -46,3 +54,24 @@ migrations/up: confirm
 migrations/create:
 	@ echo "Creating migration ..."
 	migrate create --seq --ext .sql --dir ./migrations "${name}"
+
+# ==================================================================================== #
+# QUALITY CONTROL
+# ==================================================================================== #
+
+## audit: tidy dependencies and format, vet and test all code
+.PHONY: audit
+audit:
+	@echo 'Tidying and verifying module dependencies...'
+	go mod tidy
+	go mod verify
+
+	@echo 'Formatting code...'
+	go fmt ./...
+
+	@echo 'Vetting code...'
+	go vet ./...
+	staticcheck ./...
+
+	@echo 'Running tests...'
+	go test -race -vet=off ./...
