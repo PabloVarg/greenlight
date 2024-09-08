@@ -1,7 +1,7 @@
 include .env
 
 current_time=$(shell date --iso-8601=seconds)
-version=$(shell git describe --always --dirty)
+version=$(shell git describe --always --dirty --tags)
 
 # ==================================================================================== #
 # HELPERS
