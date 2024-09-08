@@ -1,5 +1,8 @@
 include .env
 
+current_time=$(shell date --iso-8601=seconds)
+version=$(shell git describe --always --dirty)
+
 # ==================================================================================== #
 # HELPERS
 # ==================================================================================== #
@@ -90,4 +93,6 @@ audit: vendor
 .PHONY: build/api
 build/api:
 	@echo 'Building cmd/api...'
-	go build -ldflags="-s" -o ./bin/api ./cmd/api/
+	go build  \
+		-ldflags="-s -X main.buildTime=${current_time} -X main.version=${version}" \
+		-o ./bin/api ./cmd/api/
